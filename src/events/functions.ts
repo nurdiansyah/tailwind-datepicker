@@ -1,20 +1,20 @@
-import {limitToRange} from '../lib/utils.js';
-import {addMonths, addYears} from '../lib/date.js';
+import { limitToRange } from "../lib/utils.js";
+import { addMonths, addYears } from "../lib/date.js";
 
 export function triggerDatepickerEvent(datepicker, type) {
   const detail = {
     date: datepicker.getDate(),
     viewDate: new Date(datepicker.picker.viewDate),
     viewId: datepicker.picker.currentView.id,
-    datepicker,
+    datepicker
   };
-  datepicker.element.dispatchEvent(new CustomEvent(type, {detail}));
+  datepicker.element.dispatchEvent(new CustomEvent(type, { detail }));
 }
 
 // direction: -1 (to previous), 1 (to next)
 export function goToPrevOrNext(datepicker, direction) {
-  const {minDate, maxDate} = datepicker.config;
-  const {currentView, viewDate} = datepicker.picker;
+  const { minDate, maxDate } = datepicker.config;
+  const { currentView, viewDate } = datepicker.picker;
   let newViewDate;
   switch (currentView.id) {
     case 0:
@@ -40,9 +40,9 @@ export function switchView(datepicker) {
 
 export function unfocus(datepicker) {
   if (datepicker.config.updateOnBlur) {
-    datepicker.update({autohide: true});
+    datepicker.update({ autohide: true });
   } else {
-    datepicker.refresh('input');
+    datepicker.refresh("input");
     datepicker.hide();
   }
 }

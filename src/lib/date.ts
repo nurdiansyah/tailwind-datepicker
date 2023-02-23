@@ -14,10 +14,9 @@ export function dateValue(...args) {
     case 1:
       return stripTime(args[0]);
   }
-
   // use setFullYear() to keep 2-digit year from being mapped to 1900-1999
   const newDate = new Date(0);
-  newDate.setFullYear(...args);
+  newDate.setFullYear(args[0], args[1], args[2]);
   return newDate.setHours(0, 0, 0, 0);
 }
 

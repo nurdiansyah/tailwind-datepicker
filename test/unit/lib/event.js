@@ -17,7 +17,7 @@ describe('lib/evnet', function () {
     global.WeakMap = function (...args) {
       return listenerRegistry = new origWeakMap(...args);
     };
-    return import('../../../js/lib/event.js')
+    return import('../../../src/lib/event.js')
       .then((module) => {
         global.WeakMap = origWeakMap;
 

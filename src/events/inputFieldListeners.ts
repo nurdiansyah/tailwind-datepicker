@@ -1,6 +1,6 @@
-import {isInRange} from '../lib/utils.js';
-import {addDays, addMonths, addYears, startOfYearPeriod} from '../lib/date.js';
-import {goToPrevOrNext, switchView, unfocus} from './functions.js';
+import { isInRange } from "../lib/utils.js";
+import { addDays, addMonths, addYears, startOfYearPeriod } from "../lib/date.js";
+import { goToPrevOrNext, switchView, unfocus } from "./functions.js";
 
 // Find the closest date that doesn't meet the condition for unavailable date
 // Returns undefined if no available date is found
@@ -46,14 +46,14 @@ function moveByArrowKey(datepicker, ev, direction, vertical) {
       addFn = addMonths;
       testFn = (date) => {
         const dt = new Date(date);
-        const {year, disabled} = currentView;
+        const { year, disabled } = currentView;
         return dt.getFullYear() === year && disabled.includes(dt.getMonth());
       };
       break;
     default:
       viewDate = addYears(viewDate, direction * (vertical ? 4 : 1) * step);
       addFn = addYears;
-      testFn = date => currentView.disabled.includes(startOfYearPeriod(date, step));
+      testFn = (date) => currentView.disabled.includes(startOfYearPeriod(date, step));
   }
   viewDate = findNextAvailableOne(
     viewDate,
@@ -69,20 +69,20 @@ function moveByArrowKey(datepicker, ev, direction, vertical) {
 }
 
 export function onKeydown(datepicker, ev) {
-  if (ev.key === 'Tab') {
+  if (ev.key === "Tab") {
     unfocus(datepicker);
     return;
   }
 
   const picker = datepicker.picker;
-  const {id, isMinView} = picker.currentView;
+  const { id, isMinView } = picker.currentView;
   if (!picker.active) {
     switch (ev.key) {
-      case 'ArrowDown':
-      case 'Escape':
+      case "ArrowDown":
+      case "Escape":
         picker.show();
         break;
-      case 'Enter':
+      case "Enter":
         datepicker.update();
         break;
       default:
@@ -90,21 +90,21 @@ export function onKeydown(datepicker, ev) {
     }
   } else if (datepicker.editMode) {
     switch (ev.key) {
-      case 'Escape':
+      case "Escape":
         picker.hide();
         break;
-      case 'Enter':
-        datepicker.exitEditMode({update: true, autohide: datepicker.config.autohide});
+      case "Enter":
+        datepicker.exitEditMode({ update: true, autohide: datepicker.config.autohide });
         break;
       default:
         return;
     }
   } else {
     switch (ev.key) {
-      case 'Escape':
+      case "Escape":
         picker.hide();
         break;
-      case 'ArrowLeft':
+      case "ArrowLeft":
         if (ev.ctrlKey || ev.metaKey) {
           goToPrevOrNext(datepicker, -1);
         } else if (ev.shiftKey) {
@@ -114,7 +114,7 @@ export function onKeydown(datepicker, ev) {
           moveByArrowKey(datepicker, ev, -1, false);
         }
         break;
-      case 'ArrowRight':
+      case "ArrowRight":
         if (ev.ctrlKey || ev.metaKey) {
           goToPrevOrNext(datepicker, 1);
         } else if (ev.shiftKey) {
@@ -124,7 +124,7 @@ export function onKeydown(datepicker, ev) {
           moveByArrowKey(datepicker, ev, 1, false);
         }
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         if (ev.ctrlKey || ev.metaKey) {
           switchView(datepicker);
         } else if (ev.shiftKey) {
@@ -134,22 +134,22 @@ export function onKeydown(datepicker, ev) {
           moveByArrowKey(datepicker, ev, -1, true);
         }
         break;
-      case 'ArrowDown':
+      case "ArrowDown":
         if (ev.shiftKey && !ev.ctrlKey && !ev.metaKey) {
           datepicker.enterEditMode();
           return;
         }
         moveByArrowKey(datepicker, ev, 1, true);
         break;
-      case 'Enter':
+      case "Enter":
         if (isMinView) {
           datepicker.setDate(picker.viewDate);
         } else {
           picker.changeView(id - 1).render();
         }
         break;
-      case 'Backspace':
-      case 'Delete':
+      case "Backspace":
+      case "Delete":
         datepicker.enterEditMode();
         return;
       default:
@@ -200,7 +200,7 @@ export function onClickInput(datepicker, ev) {
 }
 
 export function onPaste(datepicker, ev) {
-  if (ev.clipboardData.types.includes('text/plain')) {
+  if (ev.clipboardData.types.includes("text/plain")) {
     datepicker.enterEditMode();
   }
 }

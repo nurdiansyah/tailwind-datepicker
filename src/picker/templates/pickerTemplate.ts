@@ -1,4 +1,4 @@
-import {optimizeTemplateHTML} from '../../lib/utils.js';
+import { optimizeTemplateHTML } from "../../lib/utils.js";
 
 const pickerTemplate = optimizeTemplateHTML(`<div class="datepicker hidden">
   <div class="datepicker-picker inline-block rounded-lg bg-white dark:bg-gray-700 shadow-lg p-4">

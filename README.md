@@ -26,7 +26,7 @@ Initialize a new element using the `Datepicker` constructor and optionally add c
 
 ```javascript
 const datepickerEl = document.getElementById('datepickerId');
-new Datepicker(datepickerEl, {
+new DatePicker(datepickerEl, {
     // options
 }); 
 ```

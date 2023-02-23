@@ -61,8 +61,8 @@ import Datepicker from 'vanillajs-datepicker/Datepicker';
 
 ```javascript
 const elem = document.querySelector('input[name="foo"]');
-const datepicker = new Datepicker(elem, {
-  // ...options
+const datepicker = new DatePicker(elem, {
+    // ...options
 }); 
 ```
 
@@ -84,8 +84,8 @@ const datepicker = new Datepicker(elem, {
 
 ```javascript
 const elem = document.getElementById('foo');
-const datepicker = new Datepicker(elem, {
-  // ...options
+const datepicker = new DatePicker(elem, {
+    // ...options
 }); 
 ```
 
@@ -156,8 +156,8 @@ const rangepicker = new DateRangePicker(elem, {
 1. use `buttonClass: 'btn'` option to call `Datepicker`/`DateRangePicker` constructor.
 
 ```javascript
-const datepicker = new Datepicker(elem, {
-  buttonClass: 'btn',
+const datepicker = new DatePicker(elem, {
+    buttonClass: 'btn',
 }); 
 ```
 
@@ -180,8 +180,8 @@ const datepicker = new Datepicker(elem, {
  1. If the framework uses a specific class for button elements, set it to the `buttonClass` option to call `Datepicker`/`DateRangePicker` constructor.
 
 ```javascript
-const datepicker = new Datepicker(elem, {
-  buttonClass: 'uk-button',
+const datepicker = new DatePicker(elem, {
+    buttonClass: 'uk-button',
 }); 
 ```
 
@@ -259,8 +259,8 @@ _And if don't need date range, you can use the datepicker-only version of js fil
 
 ```javascript
 const elem = document.querySelector('input[name="foo"]');
-const datepicker = new Datepicker(elem, {
-  // ...options
+const datepicker = new DatePicker(elem, {
+    // ...options
 }); 
 ```
 

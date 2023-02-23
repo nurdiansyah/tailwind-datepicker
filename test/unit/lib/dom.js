@@ -6,7 +6,7 @@ import {
   showElement,
   emptyChildNodes,
   replaceChildNodes,
-} from '../../../js/lib/dom.js';
+} from '../../../src/lib/dom.js';
 
 describe('lib/dom', function () {
   let el;

@@ -7,7 +7,7 @@ import {
   limitToRange,
   createTagRepeat,
   optimizeTemplateHTML
-} from '../../../js/lib/utils.js';
+} from '../../../src/lib/utils.js';
 
 describe('lib/utils', function () {
   describe('lastItemOf()', function () {

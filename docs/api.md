@@ -18,7 +18,8 @@ Installed locales in `[languageCode]: localeObject` format. `en`:_English (US)_ 
 Format a Date object or a time value using given format and language
 
 ```javascript
-Datepicker.formatDate( date , format [, lang ] )
+DatePicker.formatDate(date, format [, lang
+] )
 ```
 - **Arguments:**
   - `date`: {`Date`|`Number`} - Date or time value to format
@@ -34,7 +35,8 @@ Datepicker.formatDate( date , format [, lang ] )
 Parse date string (or Date/time value) using given format and language
 
 ```javascript
-Datepicker.parseDate( dateStr , format [, lang ] )
+DatePicker.parseDate(dateStr, format [, lang
+] )
 ```
 - **Arguments:**
   - `dateStr`: {`String`|`Date`|`Number`} - Date string, Date object or time value to parse

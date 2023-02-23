@@ -1,16 +1,20 @@
-import {today, addMonths, addYears} from '../lib/date.js';
-import {findElementInEventPath} from '../lib/event.js';
-import {goToPrevOrNext, switchView} from './functions.js';
+import { today, addMonths, addYears } from "../lib/date.js";
+import { findElementInEventPath } from "../lib/event.js";
+import { goToPrevOrNext, switchView } from "./functions.js";
 
 function goToSelectedMonthOrYear(datepicker, selection) {
   const picker = datepicker.picker;
   const viewDate = new Date(picker.viewDate);
   const viewId = picker.currentView.id;
-  const newDate = viewId === 1
-    ? addMonths(viewDate, selection - viewDate.getMonth())
-    : addYears(viewDate, selection - viewDate.getFullYear());
+  const newDate =
+    viewId === 1
+      ? addMonths(viewDate, selection - viewDate.getMonth())
+      : addYears(viewDate, selection - viewDate.getFullYear());
 
-  picker.changeFocus(newDate).changeView(viewId - 1).render();
+  picker
+    .changeFocus(newDate)
+    .changeView(viewId - 1)
+    .render();
 }
 
 export function onClickTodayBtn(datepicker) {
@@ -21,7 +25,7 @@ export function onClickTodayBtn(datepicker) {
       datepicker.setDate(currentDate);
       return;
     }
-    datepicker.setDate(currentDate, {render: false});
+    datepicker.setDate(currentDate, { render: false });
     picker.update();
   }
   if (picker.viewDate !== currentDate) {
@@ -31,7 +35,7 @@ export function onClickTodayBtn(datepicker) {
 }
 
 export function onClickClearBtn(datepicker) {
-  datepicker.setDate({clear: true});
+  datepicker.setDate({ clear: true });
 }
 
 export function onClickViewSwitch(datepicker) {
@@ -48,12 +52,12 @@ export function onClickNextBtn(datepicker) {
 
 // For the picker's main block to delegete the events from `datepicker-cell`s
 export function onClickView(datepicker, ev) {
-  const target = findElementInEventPath(ev, '.datepicker-cell');
-  if (!target || target.classList.contains('disabled')) {
+  const target = findElementInEventPath(ev, ".datepicker-cell");
+  if (!target || target.classList.contains("disabled")) {
     return;
   }
 
-  const {id, isMinView} = datepicker.picker.currentView;
+  const { id, isMinView } = datepicker.picker.currentView;
   if (isMinView) {
     datepicker.setDate(Number(target.dataset.date));
   } else if (id === 1) {

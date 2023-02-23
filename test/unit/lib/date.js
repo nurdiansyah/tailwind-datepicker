@@ -10,7 +10,7 @@ import {
   dayOfTheWeekOf,
   getWeek,
   startOfYearPeriod
-} from '../../../js/lib/date.js';
+} from '../../../src/lib/date.js';
 
 describe('lib/date', function () {
   describe('stripTime()', function () {

@@ -1,20 +1,15 @@
-import {hasProperty, pushUnique} from '../lib/utils.js';
-import {dateValue} from '../lib/date.js';
-import {reFormatTokens, parseDate} from '../lib/date-format.js';
-import {parseHTML} from '../lib/dom.js';
-import defaultOptions from './defaultOptions.js';
+import { hasProperty, pushUnique } from "../lib/utils.js";
+import { dateValue } from "../lib/date.js";
+import { reFormatTokens, parseDate } from "../lib/date-format.js";
+import { parseHTML } from "../lib/dom.js";
+import defaultOptions from "./defaultOptions.js";
+import { PickerConfig } from "../types.js";
 
-const {
-  language: defaultLang,
-  format: defaultFormat,
-  weekStart: defaultWeekStart,
-} = defaultOptions;
+const { language: defaultLang, format: defaultFormat, weekStart: defaultWeekStart } = defaultOptions;
 
 // Reducer function to filter out invalid day-of-week from the input
 function sanitizeDOW(dow, day) {
-  return dow.length < 6 && day >= 0 && day < 7
-    ? pushUnique(dow, day)
-    : dow;
+  return dow.length < 6 && day >= 0 && day < 7 ? pushUnique(dow, day) : dow;
 }
 
 function calcEndOfWeek(startOfWeek) {
@@ -36,19 +31,10 @@ function validateViewId(value, origValue, max = 3) {
 // Create Datepicker configuration to set
 export default function processOptions(options, datepicker) {
   const inOpts = Object.assign({}, options);
-  const config = {};
+  const config: PickerConfig = {};
   const locales = datepicker.constructor.locales;
-  let {
-    format,
-    language,
-    locale,
-    maxDate,
-    maxView,
-    minDate,
-    pickLevel,
-    startView,
-    weekStart,
-  } = datepicker.config || {};
+  let { format, language, locale, maxDate, maxView, minDate, pickLevel, startView, weekStart } =
+    datepicker.config || {};
 
   if (inOpts.language) {
     let lang;
@@ -58,7 +44,7 @@ export default function processOptions(options, datepicker) {
       } else {
         // Check if langauge + region tag can fallback to the one without
         // region (e.g. fr-CA → fr)
-        lang = inOpts.language.split('-')[0];
+        lang = inOpts.language.split("-")[0];
         if (locales[lang] === undefined) {
           lang = false;
         }
@@ -71,10 +57,13 @@ export default function processOptions(options, datepicker) {
       // update locale as well when updating language
       const origLocale = locale || locales[defaultLang];
       // use default language's properties for the fallback
-      locale = Object.assign({
-        format: defaultFormat,
-        weekStart: defaultWeekStart
-      }, locales[defaultLang]);
+      locale = Object.assign(
+        {
+          format: defaultFormat,
+          weekStart: defaultWeekStart
+        },
+        locales[defaultLang]
+      );
       if (language !== defaultLang) {
         Object.assign(locale, locales[language]);
       }
@@ -92,8 +81,8 @@ export default function processOptions(options, datepicker) {
   }
 
   if (inOpts.format) {
-    const hasToDisplay = typeof inOpts.format.toDisplay === 'function';
-    const hasToValue = typeof inOpts.format.toValue === 'function';
+    const hasToDisplay = typeof inOpts.format.toDisplay === "function";
+    const hasToValue = typeof inOpts.format.toValue === "function";
     const validFormatString = reFormatTokens.test(inOpts.format);
     if ((hasToDisplay && hasToValue) || validFormatString) {
       format = config.format = inOpts.format;
@@ -108,15 +97,14 @@ export default function processOptions(options, datepicker) {
   let minDt = minDate;
   let maxDt = maxDate;
   if (inOpts.minDate !== undefined) {
-    minDt = inOpts.minDate === null
-      ? dateValue(0, 0, 1)  // set 0000-01-01 to prevent negative values for year
-      : validateDate(inOpts.minDate, format, locale, minDt);
+    minDt =
+      inOpts.minDate === null
+        ? dateValue(0, 0, 1) // set 0000-01-01 to prevent negative values for year
+        : validateDate(inOpts.minDate, format, locale, minDt);
     delete inOpts.minDate;
   }
   if (inOpts.maxDate !== undefined) {
-    maxDt = inOpts.maxDate === null
-      ? undefined
-      : validateDate(inOpts.maxDate, format, locale, maxDt);
+    maxDt = inOpts.maxDate === null ? undefined : validateDate(inOpts.maxDate, format, locale, maxDt);
     delete inOpts.maxDate;
   }
   if (maxDt < minDt) {
@@ -232,19 +220,19 @@ export default function processOptions(options, datepicker) {
 
   //*** misc ***//
   if (inOpts.disableTouchKeyboard !== undefined) {
-    config.disableTouchKeyboard = 'ontouchstart' in document && !!inOpts.disableTouchKeyboard;
+    config.disableTouchKeyboard = "ontouchstart" in document && !!inOpts.disableTouchKeyboard;
     delete inOpts.disableTouchKeyboard;
   }
   if (inOpts.orientation) {
-    const orientation = inOpts.orientation.toLowerCase().split(/\s+/g);
+    const orientation: string[] = inOpts.orientation.toLowerCase().split(/\s+/g);
     config.orientation = {
-      x: orientation.find(x => (x === 'left' || x === 'right')) || 'auto',
-      y: orientation.find(y => (y === 'top' || y === 'bottom')) || 'auto',
+      x: orientation.find((x) => x === "left" || x === "right") || "auto",
+      y: orientation.find((y) => y === "top" || y === "bottom") || "auto"
     };
     delete inOpts.orientation;
   }
   if (inOpts.todayBtnMode !== undefined) {
-    switch(inOpts.todayBtnMode) {
+    switch (inOpts.todayBtnMode) {
       case 0:
       case 1:
         config.todayBtnMode = inOpts.todayBtnMode;

@@ -1,12 +1,12 @@
-import {hasProperty, lastItemOf, isInRange, limitToRange} from '../lib/utils.js';
-import {today} from '../lib/date.js';
-import {parseHTML, showElement, hideElement, emptyChildNodes} from '../lib/dom.js';
-import {registerListeners} from '../lib/event.js';
-import pickerTemplate from './templates/pickerTemplate.js';
-import DaysView from './views/DaysView.js';
-import MonthsView from './views/MonthsView.js';
-import YearsView from './views/YearsView.js';
-import {triggerDatepickerEvent} from '../events/functions.js';
+import { hasProperty, lastItemOf, isInRange, limitToRange } from "../lib/utils.js";
+import { today } from "../lib/date.js";
+import { parseHTML, showElement, hideElement, emptyChildNodes } from "../lib/dom.js";
+import { registerListeners } from "../lib/event.js";
+import pickerTemplate from "./templates/pickerTemplate.js";
+import DaysView from "./views/DaysView.js";
+import MonthsView from "./views/MonthsView.js";
+import YearsView from "./views/YearsView.js";
+import { triggerDatepickerEvent } from "../events/functions.js";
 import {
   onClickTodayBtn,
   onClickClearBtn,
@@ -14,16 +14,18 @@ import {
   onClickPrevBtn,
   onClickNextBtn,
   onClickView,
-  onClickPicker,
-} from '../events/pickerListeners.js';
+  onClickPicker
+} from "../events/pickerListeners.js";
+import { DatePicker } from "../DatePicker";
+import { PickerConfig } from "../types.js";
 
-function processPickerOptions(picker, options) {
+function processPickerOptions(picker, options: PickerConfig) {
   if (options.title !== undefined) {
     if (options.title) {
       picker.controls.title.textContent = options.title;
       showElement(picker.controls.title);
     } else {
-      picker.controls.title.textContent = '';
+      picker.controls.title.textContent = "";
       hideElement(picker.controls.title);
     }
   }
@@ -52,8 +54,8 @@ function processPickerOptions(picker, options) {
       hideElement(picker.controls.todayBtn);
     }
   }
-  if (hasProperty(options, 'minDate') || hasProperty(options, 'maxDate')) {
-    const {minDate, maxDate} = picker.datepicker.config;
+  if (hasProperty(options, "minDate") || hasProperty(options, "maxDate")) {
+    const { minDate, maxDate } = picker.datepicker.config;
     picker.controls.todayBtn.disabled = !isInRange(today(), minDate, maxDate);
   }
   if (options.clearBtn !== undefined) {
@@ -69,7 +71,7 @@ function processPickerOptions(picker, options) {
 // - the last item of the selected dates or defaultViewDate if no selection
 // - limitted to minDate or maxDate if it exceeds the range
 function computeResetViewDate(datepicker) {
-  const {dates, config} = datepicker;
+  const { dates, config } = datepicker;
   const viewDate = dates.length > 0 ? lastItemOf(dates) : config.defaultViewDate;
   return limitToRange(viewDate, config.minDate, config.maxDate);
 }
@@ -78,15 +80,15 @@ function computeResetViewDate(datepicker) {
 function setViewDate(picker, newDate) {
   const oldViewDate = new Date(picker.viewDate);
   const newViewDate = new Date(newDate);
-  const {id, year, first, last} = picker.currentView;
+  const { id, year, first, last } = picker.currentView;
   const viewYear = newViewDate.getFullYear();
 
   picker.viewDate = newDate;
   if (viewYear !== oldViewDate.getFullYear()) {
-    triggerDatepickerEvent(picker.datepicker, 'changeYear');
+    triggerDatepickerEvent(picker.datepicker, "changeYear");
   }
   if (newViewDate.getMonth() !== oldViewDate.getMonth()) {
-    triggerDatepickerEvent(picker.datepicker, 'changeMonth');
+    triggerDatepickerEvent(picker.datepicker, "changeMonth");
   }
 
   // return whether the new date is in different period on time from the one
@@ -108,50 +110,68 @@ function getTextDirection(el) {
 
 // Class representing the picker UI
 export default class Picker {
+  datepicker: DatePicker;
+  element: HTMLElement;
+  main: HTMLElement;
+  controls: {
+    title: Element;
+    prevBtn: Element;
+    viewSwitch: Element;
+    nextBtn: Element;
+    todayBtn: Element;
+    clearBtn: Element;
+  };
+  viewDate: any;
+  views: (DaysView | MonthsView | YearsView)[];
+  currentView: DaysView | MonthsView | YearsView;
+  active: any;
+  private _renderMethod: string;
   constructor(datepicker) {
     this.datepicker = datepicker;
 
     const template = pickerTemplate.replace(/%buttonClass%/g, datepicker.config.buttonClass);
-    const element = this.element = parseHTML(template).firstChild;
-    const [header, main, footer] = element.firstChild.children;
+    const element = (this.element = parseHTML(template).firstChild as HTMLElement);
+    const [header, main, footer] = (element.firstChild as Element).children;
     const title = header.firstElementChild;
     const [prevBtn, viewSwitch, nextBtn] = header.lastElementChild.children;
-    const [todayBtn, clearBtn] = footer.firstChild.children;
+    const [todayBtn, clearBtn] = (footer.firstChild as Element).children;
     const controls = {
       title,
       prevBtn,
       viewSwitch,
       nextBtn,
       todayBtn,
-      clearBtn,
+      clearBtn
     };
-    this.main = main;
+    this.main = main as HTMLElement;
     this.controls = controls;
 
-    const elementClass = datepicker.inline ? 'inline' : 'dropdown';
+    const elementClass = datepicker.inline ? "inline" : "dropdown";
     element.classList.add(`datepicker-${elementClass}`);
-    elementClass === 'dropdown' ? element.classList.add('dropdown', 'absolute', 'top-0', 'left-0', 'z-20', 'pt-2') : null;
+    elementClass === "dropdown"
+      ? element.classList.add("dropdown", "absolute", "top-0", "left-0", "z-20", "pt-2")
+      : null;
 
     processPickerOptions(this, datepicker.config);
     this.viewDate = computeResetViewDate(datepicker);
 
     // set up event listeners
     registerListeners(datepicker, [
-      [element, 'click', onClickPicker.bind(null, datepicker), {capture: true}],
-      [main, 'click', onClickView.bind(null, datepicker)],
-      [controls.viewSwitch, 'click', onClickViewSwitch.bind(null, datepicker)],
-      [controls.prevBtn, 'click', onClickPrevBtn.bind(null, datepicker)],
-      [controls.nextBtn, 'click', onClickNextBtn.bind(null, datepicker)],
-      [controls.todayBtn, 'click', onClickTodayBtn.bind(null, datepicker)],
-      [controls.clearBtn, 'click', onClickClearBtn.bind(null, datepicker)],
+      [element, "click", onClickPicker.bind(null, datepicker), { capture: true }],
+      [main, "click", onClickView.bind(null, datepicker)],
+      [controls.viewSwitch, "click", onClickViewSwitch.bind(null, datepicker)],
+      [controls.prevBtn, "click", onClickPrevBtn.bind(null, datepicker)],
+      [controls.nextBtn, "click", onClickNextBtn.bind(null, datepicker)],
+      [controls.todayBtn, "click", onClickTodayBtn.bind(null, datepicker)],
+      [controls.clearBtn, "click", onClickClearBtn.bind(null, datepicker)]
     ]);
 
     // set up views
     this.views = [
       new DaysView(this),
       new MonthsView(this),
-      new YearsView(this, {id: 2, name: 'years', cellClass: 'year', step: 1}),
-      new YearsView(this, {id: 3, name: 'decades', cellClass: 'decade', step: 10}),
+      new YearsView(this, { id: 2, name: "years", cellClass: "year", step: 1 }),
+      new YearsView(this, { id: 3, name: "decades", cellClass: "decade", step: 10 })
     ];
     this.currentView = this.views[datepicker.config.startView];
 
@@ -169,15 +189,17 @@ export default class Picker {
   }
 
   detach() {
-    this.datepicker.config.container.removeChild(this.element);
+    if (this.datepicker.config.container && typeof this.datepicker.config.container !== "string") {
+      this.datepicker.config.container.removeChild(this.element);
+    }
   }
 
   show() {
     if (this.active) {
       return;
     }
-    this.element.classList.add('active', 'block');
-    this.element.classList.remove('hidden');
+    this.element.classList.add("active", "block");
+    this.element.classList.remove("hidden");
     this.active = true;
 
     const datepicker = this.datepicker;
@@ -187,7 +209,7 @@ export default class Picker {
       if (inputDirection !== getTextDirection(datepicker.config.container)) {
         this.element.dir = inputDirection;
       } else if (this.element.dir) {
-        this.element.removeAttribute('dir');
+        this.element.removeAttribute("dir");
       }
 
       this.place();
@@ -195,7 +217,7 @@ export default class Picker {
         datepicker.inputField.blur();
       }
     }
-    triggerDatepickerEvent(datepicker, 'show');
+    triggerDatepickerEvent(datepicker, "show");
   }
 
   hide() {
@@ -203,32 +225,25 @@ export default class Picker {
       return;
     }
     this.datepicker.exitEditMode();
-    this.element.classList.remove('active', 'block');
-    this.element.classList.add('active', 'block', 'hidden');
+    this.element.classList.remove("active", "block");
+    this.element.classList.add("active", "block", "hidden");
     this.active = false;
-    triggerDatepickerEvent(this.datepicker, 'hide');
+    triggerDatepickerEvent(this.datepicker, "hide");
   }
 
   place() {
-    const {classList, style} = this.element;
-    const {config, inputField} = this.datepicker;
-    const container = config.container;
-    const {
-      width: calendarWidth,
-      height: calendarHeight,
-    } = this.element.getBoundingClientRect();
-    const {
-      left: containerLeft,
-      top: containerTop,
-      width: containerWidth,
-    } = container.getBoundingClientRect();
+    const { classList, style } = this.element;
+    const { config, inputField } = this.datepicker;
+    const container = config.container as HTMLElement;
+    const { width: calendarWidth, height: calendarHeight } = this.element.getBoundingClientRect();
+    const { left: containerLeft, top: containerTop, width: containerWidth } = container.getBoundingClientRect();
     const {
       left: inputLeft,
       top: inputTop,
       width: inputWidth,
       height: inputHeight
     } = inputField.getBoundingClientRect();
-    let {x: orientX, y: orientY} = config.orientation;
+    let { x: orientX, y: orientY } = config.orientation;
     let scrollTop;
     let left;
     let top;
@@ -243,36 +258,36 @@ export default class Picker {
       top = inputTop - containerTop + scrollTop;
     }
 
-    if (orientX === 'auto') {
+    if (orientX === "auto") {
       if (left < 0) {
         // align to the left and move into visible area if input's left edge < window's
-        orientX = 'left';
+        orientX = "left";
         left = 10;
       } else if (left + calendarWidth > containerWidth) {
         // align to the right if canlendar's right edge > container's
-        orientX = 'right';
+        orientX = "right";
       } else {
-        orientX = getTextDirection(inputField) === 'rtl' ? 'right' : 'left';
+        orientX = getTextDirection(inputField) === "rtl" ? "right" : "left";
       }
     }
-    if (orientX === 'right') {
+    if (orientX === "right") {
       left -= calendarWidth - inputWidth;
     }
 
-    if (orientY === 'auto') {
-      orientY = top - calendarHeight < scrollTop ? 'bottom' : 'top';
+    if (orientY === "auto") {
+      orientY = top - calendarHeight < scrollTop ? "bottom" : "top";
     }
-    if (orientY === 'top') {
+    if (orientY === "top") {
       top -= calendarHeight;
     } else {
       top += inputHeight;
     }
 
     classList.remove(
-      'datepicker-orient-top',
-      'datepicker-orient-bottom',
-      'datepicker-orient-right',
-      'datepicker-orient-left'
+      "datepicker-orient-top",
+      "datepicker-orient-bottom",
+      "datepicker-orient-right",
+      "datepicker-orient-left"
     );
     classList.add(`datepicker-orient-${orientY}`, `datepicker-orient-${orientX}`);
 
@@ -285,20 +300,22 @@ export default class Picker {
   }
 
   setPrevBtnDisabled(disabled) {
-    this.controls.prevBtn.disabled = disabled;
+    const prevBtn = this.controls.prevBtn as HTMLButtonElement;
+    prevBtn.disabled = disabled;
   }
 
   setNextBtnDisabled(disabled) {
-    this.controls.nextBtn.disabled = disabled;
+    const nextBtn = this.controls.nextBtn as HTMLButtonElement;
+    nextBtn.disabled = disabled;
   }
 
   changeView(viewId) {
     const oldView = this.currentView;
-    const newView =  this.views[viewId];
+    const newView = this.views[viewId];
     if (newView.id !== oldView.id) {
       this.currentView = newView;
-      this._renderMethod = 'render';
-      triggerDatepickerEvent(this.datepicker, 'changeView');
+      this._renderMethod = "render";
+      triggerDatepickerEvent(this.datepicker, "changeView");
       this.main.replaceChild(newView.element, oldView.element);
     }
     return this;
@@ -306,7 +323,7 @@ export default class Picker {
 
   // Change the focused date (view date)
   changeFocus(newViewDate) {
-    this._renderMethod = setViewDate(this, newViewDate) ? 'render' : 'refreshFocus';
+    this._renderMethod = setViewDate(this, newViewDate) ? "render" : "refreshFocus";
     this.views.forEach((view) => {
       view.updateFocus();
     });
@@ -316,7 +333,7 @@ export default class Picker {
   // Apply the change of the selected dates
   update() {
     const newViewDate = computeResetViewDate(this.datepicker);
-    this._renderMethod = setViewDate(this, newViewDate) ? 'render' : 'refresh';
+    this._renderMethod = setViewDate(this, newViewDate) ? "render" : "refresh";
     this.views.forEach((view) => {
       view.updateFocus();
       view.updateSelection();
@@ -326,7 +343,7 @@ export default class Picker {
 
   // Refresh the picker UI
   render(quickRender = true) {
-    const renderMethod = (quickRender && this._renderMethod) || 'render';
+    const renderMethod = (quickRender && this._renderMethod) || "render";
     delete this._renderMethod;
 
     this.currentView[renderMethod]();

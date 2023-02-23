@@ -38,10 +38,10 @@ export function limitToRange(val, min, max) {
   return val;
 }
 
-export function createTagRepeat(tagName, repeat, attributes = {}, index = 0, html = '') {
+export function createTagRepeat(tagName, repeat, attributes = {}, index = 0, html = "") {
   const openTagSrc = Object.keys(attributes).reduce((src, attr) => {
     let val = attributes[attr];
-    if (typeof val === 'function') {
+    if (typeof val === "function") {
       val = val(index);
     }
     return `${src} ${attr}="${val}"`;
@@ -49,13 +49,11 @@ export function createTagRepeat(tagName, repeat, attributes = {}, index = 0, htm
   html += `<${openTagSrc}></${tagName}>`;
 
   const next = index + 1;
-  return next < repeat
-    ? createTagRepeat(tagName, repeat, attributes, next, html)
-    : html;
+  return next < repeat ? createTagRepeat(tagName, repeat, attributes, next, html) : html;
 }
 
 // Remove the spacing surrounding tags for HTML parser not to create text nodes
 // before/after elements
 export function optimizeTemplateHTML(html) {
-  return html.replace(/>\s+/g, '>').replace(/\s+</, '<');
+  return html.replace(/>\s+/g, ">").replace(/\s+</, "<");
 }

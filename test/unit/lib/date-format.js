@@ -1,5 +1,5 @@
 import '../_setup.js';
-import {parseDate, formatDate} from '../../../js/lib/date-format.js';
+import {parseDate, formatDate} from '../../../src/lib/date-format.js';
 
 describe('lib/date', function () {
   const locales = {

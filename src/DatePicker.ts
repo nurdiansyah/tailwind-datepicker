@@ -1,19 +1,19 @@
-import {lastItemOf, stringToArray, isInRange} from './lib/utils.js';
-import {today} from './lib/date.js';
-import {parseDate, formatDate} from './lib/date-format.js';
-import {registerListeners, unregisterListeners} from './lib/event.js';
-import {locales} from './i18n/base-locales.js';
-import defaultOptions from './options/defaultOptions.js';
-import processOptions from './options/processOptions.js';
-import Picker from './picker/Picker.js';
-import {triggerDatepickerEvent} from './events/functions.js';
-import {onKeydown, onFocus, onMousedown, onClickInput, onPaste} from './events/inputFieldListeners.js';
-import {onClickOutside} from './events/otherListeners.js';
+import { lastItemOf, stringToArray, isInRange } from "./lib/utils.js";
+import { today } from "./lib/date.js";
+import { parseDate, formatDate } from "./lib/date-format.js";
+import { registerListeners, unregisterListeners } from "./lib/event.js";
+import { locales } from "./i18n/base-locales.js";
+import defaultOptions from "./options/defaultOptions.js";
+import processOptions from "./options/processOptions.js";
+import Picker from "./picker/Picker.js";
+import { triggerDatepickerEvent } from "./events/functions.js";
+import { onKeydown, onFocus, onMousedown, onClickInput, onPaste } from "./events/inputFieldListeners.js";
+import { onClickOutside } from "./events/otherListeners.js";
+import { DatePickerOptions, PickerConfig } from "./types.js";
+import { DateRangePicker } from "./DateRangePicker.js";
 
 function stringifyDates(dates, config) {
-  return dates
-    .map(dt => formatDate(dt, config.format, config.locale))
-    .join(config.dateDelimiter);
+  return dates.map((dt) => formatDate(dt, config.format, config.locale)).join(config.dateDelimiter);
 }
 
 // parse input dates and create an array of time values for selection
@@ -21,7 +21,7 @@ function stringifyDates(dates, config) {
 // when origDates (current selection) is passed, the function works to mix
 // the input dates into the current selection
 function processInputDates(datepicker, inputDates, clear = false) {
-  const {config, dates: origDates, rangepicker} = datepicker;
+  const { config, dates: origDates, rangepicker } = datepicker;
   if (inputDates.length === 0) {
     // empty input is considered valid unless origiDates is passed
     return clear ? [] : undefined;
@@ -39,20 +39,16 @@ function processInputDates(datepicker, inputDates, clear = false) {
       // is the range-end picker of a rangepicker
       const dt = new Date(date);
       if (config.pickLevel === 1) {
-        date = rangeEnd
-          ? dt.setMonth(dt.getMonth() + 1, 0)
-          : dt.setDate(1);
+        date = rangeEnd ? dt.setMonth(dt.getMonth() + 1, 0) : dt.setDate(1);
       } else {
-        date = rangeEnd
-          ? dt.setFullYear(dt.getFullYear() + 1, 0, 0)
-          : dt.setMonth(0, 1);
+        date = rangeEnd ? dt.setFullYear(dt.getFullYear() + 1, 0, 0) : dt.setMonth(0, 1);
       }
     }
     if (
-      isInRange(date, config.minDate, config.maxDate)
-      && !dates.includes(date)
-      && !config.datesDisabled.includes(date)
-      && !config.daysOfWeekDisabled.includes(new Date(date).getDay())
+      isInRange(date, config.minDate, config.maxDate) &&
+      !dates.includes(date) &&
+      !config.datesDisabled.includes(date) &&
+      !config.daysOfWeekDisabled.includes(new Date(date).getDay())
     ) {
       dates.push(date);
     }
@@ -63,12 +59,15 @@ function processInputDates(datepicker, inputDates, clear = false) {
   }
   if (config.multidate && !clear) {
     // get the synmetric difference between origDates and newDates
-    newDates = newDates.reduce((dates, date) => {
-      if (!origDates.includes(date)) {
-        dates.push(date);
-      }
-      return dates;
-    }, origDates.filter(date => !newDates.includes(date)));
+    newDates = newDates.reduce(
+      (dates, date) => {
+        if (!origDates.includes(date)) {
+          dates.push(date);
+        }
+        return dates;
+      },
+      origDates.filter((date) => !newDates.includes(date))
+    );
   }
   // do length check always because user can input multiple dates regardless of the mode
   return config.maxNumberOfDates && newDates.length > config.maxNumberOfDates
@@ -79,7 +78,7 @@ function processInputDates(datepicker, inputDates, clear = false) {
 // refresh the UI elements
 // modes: 1: input only, 2, picker only, 3 both
 function refreshUI(datepicker, mode = 3, quickRender = true) {
-  const {config, picker, inputField} = datepicker;
+  const { config, picker, inputField } = datepicker;
   if (mode & 2) {
     const newView = picker.active ? config.pickLevel : config.startView;
     picker.update().changeView(newView).render(quickRender);
@@ -90,7 +89,8 @@ function refreshUI(datepicker, mode = 3, quickRender = true) {
 }
 
 function setDate(datepicker, inputDates, options) {
-  let {clear, render, autohide} = options;
+  let { render, autohide } = options;
+  const clear = options.clear;
   if (render === undefined) {
     render = true;
   }
@@ -107,7 +107,7 @@ function setDate(datepicker, inputDates, options) {
   if (newDates.toString() !== datepicker.dates.toString()) {
     datepicker.dates = newDates;
     refreshUI(datepicker, render ? 3 : 1);
-    triggerDatepickerEvent(datepicker, 'changeDate');
+    triggerDatepickerEvent(datepicker, "changeDate");
   } else {
     refreshUI(datepicker, 1);
   }
@@ -119,7 +119,17 @@ function setDate(datepicker, inputDates, options) {
 /**
  * Class representing a date picker
  */
-export default class Datepicker {
+export class DatePicker {
+  element: HTMLElement;
+  config: PickerConfig;
+  private readonly _options: DatePickerOptions;
+  inline: boolean;
+  inputField: HTMLInputElement;
+  dates: any[];
+  picker: Picker;
+  rangePicker?: DateRangePicker;
+  editMode: boolean;
+  _showing: boolean;
   /**
    * Create a date picker
    * @param  {Element} element - element to bind a date picker
@@ -128,23 +138,25 @@ export default class Datepicker {
    * date picker belongs to. Use this only when creating date picker as a part
    * of date range picker
    */
-  constructor(element, options = {}, rangepicker = undefined) {
-    element.datepicker = this;
+  constructor(element: HTMLElement, options: DatePickerOptions = {}, rangepicker: DateRangePicker = undefined) {
     this.element = element;
 
     // set up config
-    const config = this.config = Object.assign({
-      buttonClass: (options.buttonClass && String(options.buttonClass)) || 'button',
-      container: document.body,
-      defaultViewDate: today(),
-      maxDate: undefined,
-      minDate: undefined,
-    }, processOptions(defaultOptions, this));
+    const config: PickerConfig = (this.config = Object.assign(
+      {
+        buttonClass: (options.buttonClass && String(options.buttonClass)) || "button",
+        container: document.body,
+        defaultViewDate: today(),
+        maxDate: undefined,
+        minDate: undefined
+      },
+      processOptions(defaultOptions, this)
+    ));
     this._options = options;
     Object.assign(config, processOptions(options, this));
 
     // configure by type
-    const inline = this.inline = element.tagName !== 'INPUT';
+    const inline = (this.inline = element.tagName !== "INPUT");
     let inputField;
     let initialDates;
 
@@ -153,12 +165,16 @@ export default class Datepicker {
       initialDates = stringToArray(element.dataset.date, config.dateDelimiter);
       delete element.dataset.date;
     } else {
-      const container = options.container ? document.querySelector(options.container) : null;
+      const container = options.container
+        ? typeof options.container === "string"
+          ? (document.querySelector(options.container) as HTMLElement)
+          : options.container
+        : null;
       if (container) {
         config.container = container;
       }
-      inputField = this.inputField = element;
-      inputField.classList.add('datepicker-input');
+      inputField = this.inputField = element as HTMLInputElement;
+      inputField.classList.add("datepicker-input");
       initialDates = stringToArray(inputField.value, config.dateDelimiter);
     }
     if (rangepicker) {
@@ -166,18 +182,14 @@ export default class Datepicker {
       const index = rangepicker.inputs.indexOf(inputField);
       const datepickers = rangepicker.datepickers;
       if (index < 0 || index > 1 || !Array.isArray(datepickers)) {
-        throw Error('Invalid rangepicker object.');
+        throw Error("Invalid rangepicker object.");
       }
       // attach itaelf to the rangepicker here so that processInputDates() can
       // determine if this is the range-end picker of the rangepicker while
       // setting inital values when pickLevel > 0
       datepickers[index] = this;
       // add getter for rangepicker
-      Object.defineProperty(this, 'rangepicker', {
-        get() {
-          return rangepicker;
-        },
-      });
+      this.rangePicker = rangepicker;
     }
 
     // set initial dates
@@ -191,7 +203,7 @@ export default class Datepicker {
       inputField.value = stringifyDates(this.dates, config);
     }
 
-    const picker = this.picker = new Picker(this);
+    const picker = (this.picker = new Picker(this));
 
     if (inline) {
       this.show();
@@ -199,14 +211,14 @@ export default class Datepicker {
       // set up event listeners in other modes
       const onMousedownDocument = onClickOutside.bind(null, this);
       const listeners = [
-        [inputField, 'keydown', onKeydown.bind(null, this)],
-        [inputField, 'focus', onFocus.bind(null, this)],
-        [inputField, 'mousedown', onMousedown.bind(null, this)],
-        [inputField, 'click', onClickInput.bind(null, this)],
-        [inputField, 'paste', onPaste.bind(null, this)],
-        [document, 'mousedown', onMousedownDocument],
-        [document, 'touchstart', onMousedownDocument],
-        [window, 'resize', picker.place.bind(picker)]
+        [inputField, "keydown", onKeydown.bind(null, this)],
+        [inputField, "focus", onFocus.bind(null, this)],
+        [inputField, "mousedown", onMousedown.bind(null, this)],
+        [inputField, "click", onClickInput.bind(null, this)],
+        [inputField, "paste", onPaste.bind(null, this)],
+        [document, "mousedown", onMousedownDocument],
+        [document, "touchstart", onMousedownDocument],
+        [window, "resize", picker.place.bind(picker)]
       ];
       registerListeners(this, listeners);
     }
@@ -227,7 +239,7 @@ export default class Datepicker {
    * @return {String} formatted date
    */
   static formatDate(date, format, lang) {
-    return formatDate(date, format, lang && locales[lang] || locales.en);
+    return formatDate(date, format, (lang && locales[lang]) || locales.en);
   }
 
   /**
@@ -246,7 +258,7 @@ export default class Datepicker {
    * @return {Number} time value of parsed date
    */
   static parseDate(dateStr, format, lang) {
-    return parseDate(dateStr, format, lang && locales[lang] || locales.en);
+    return parseDate(dateStr, format, (lang && locales[lang]) || locales.en);
   }
 
   /**
@@ -316,16 +328,14 @@ export default class Datepicker {
 
   /**
    * Destroy the Datepicker instance
-   * @return {Detepicker} - the instance destroyed
    */
-  destroy() {
+  destroy(): DatePicker {
     this.hide();
     unregisterListeners(this);
     this.picker.detach();
     if (!this.inline) {
-      this.inputField.classList.remove('datepicker-input');
+      this.inputField.classList.remove("datepicker-input");
     }
-    delete this.element.datepicker;
     return this;
   }
 
@@ -341,9 +351,7 @@ export default class Datepicker {
    * selected, empty array in multidate mode and untitled in sigledate mode
    */
   getDate(format = undefined) {
-    const callback = format
-      ? date => formatDate(date, format, this.config.locale)
-      : date => new Date(date);
+    const callback = format ? (date) => formatDate(date, format, this.config.locale) : (date) => new Date(date);
 
     if (this.config.multidate) {
       return this.dates.map(callback);
@@ -383,7 +391,6 @@ export default class Datepicker {
    *
    * @param {...(Date|Number|String)|Array} [dates] - Date strings, Date
    * objects, time values or mix of those for new selection
-   * @param {Object} [options] - function options
    * - clear: {boolean} - Whether to clear the existing selection
    *     defualt: false
    * - render: {boolean} - Whether to re-render the picker element
@@ -392,16 +399,10 @@ export default class Datepicker {
    *     Ignored when used with render: false
    *     default: config.autohide
    */
-  setDate(...args) {
-    const dates = [...args];
+  setDate(...dates) {
     const opts = {};
-    const lastArg = lastItemOf(args);
-    if (
-      typeof lastArg === 'object'
-      && !Array.isArray(lastArg)
-      && !(lastArg instanceof Date)
-      && lastArg
-    ) {
+    const lastArg = lastItemOf(dates);
+    if (typeof lastArg === "object" && !Array.isArray(lastArg) && !(lastArg instanceof Date) && lastArg) {
       Object.assign(opts, dates.pop());
     }
 
@@ -424,7 +425,7 @@ export default class Datepicker {
       return;
     }
 
-    const opts = {clear: true, autohide: !!(options && options.autohide)};
+    const opts = { clear: true, autohide: !!(options && options.autohide) };
     const inputDates = stringToArray(this.inputField.value, this.config.dateDelimiter);
     setDate(this, inputDates, opts);
   }
@@ -437,15 +438,15 @@ export default class Datepicker {
    * regardless of its state instead of optimized refresh
    */
   refresh(target = undefined, forceRender = false) {
-    if (target && typeof target !== 'string') {
+    if (target && typeof target !== "string") {
       forceRender = target;
       target = undefined;
     }
 
     let mode;
-    if (target === 'picker') {
+    if (target === "picker") {
       mode = 2;
-    } else if (target === 'input') {
+    } else if (target === "input") {
       mode = 1;
     } else {
       mode = 3;
@@ -462,7 +463,7 @@ export default class Datepicker {
       return;
     }
     this.editMode = true;
-    this.inputField.classList.add('in-edit', 'border-blue-700');
+    this.inputField.classList.add("in-edit", "border-blue-700");
   }
 
   /**
@@ -477,9 +478,9 @@ export default class Datepicker {
     if (this.inline || !this.editMode) {
       return;
     }
-    const opts = Object.assign({update: false}, options);
+    const opts = Object.assign({ update: false }, options);
     delete this.editMode;
-    this.inputField.classList.remove('in-edit', 'border-blue-700');
+    this.inputField.classList.remove("in-edit", "border-blue-700");
     if (opts.update) {
       this.update(opts);
     }

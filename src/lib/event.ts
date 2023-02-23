@@ -1,5 +1,5 @@
 const listenerRegistry = new WeakMap();
-const {addEventListener, removeEventListener} = EventTarget.prototype;
+const { addEventListener, removeEventListener } = EventTarget.prototype;
 
 // Register event listeners to a key object
 // listeners: array of listener definitions;
@@ -12,6 +12,7 @@ export function registerListeners(keyObj, listeners) {
     listenerRegistry.set(keyObj, registered);
   }
   listeners.forEach((listener) => {
+    // @ts-ignore
     addEventListener.call(...listener);
     registered.push(listener);
   });
@@ -23,6 +24,7 @@ export function unregisterListeners(keyObj) {
     return;
   }
   listeners.forEach((listener) => {
+    // @ts-ignore
     removeEventListener.call(...listener);
   });
   listenerRegistry.delete(keyObj);
@@ -37,9 +39,11 @@ if (!Event.prototype.composedPath) {
     let parent;
     if (node.parentNode) {
       parent = node.parentNode;
-    } else if (node.host) { // ShadowRoot
+    } else if (node.host) {
+      // ShadowRoot
       parent = node.host;
-    } else if (node.defaultView) {  // Document
+    } else if (node.defaultView) {
+      // Document
       parent = node.defaultView;
     }
     return parent ? getComposedPath(parent, path) : path;
@@ -63,6 +67,6 @@ function findFromPath(path, criteria, currentTarget, index = 0) {
 
 // Search for the actual target of a delegated event
 export function findElementInEventPath(ev, selector) {
-  const criteria = typeof selector === 'function' ? selector : el => el.matches(selector);
+  const criteria = typeof selector === "function" ? selector : (el) => el.matches(selector);
   return findFromPath(ev.composedPath(), criteria, ev.currentTarget);
 }

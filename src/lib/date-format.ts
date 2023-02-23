@@ -1,5 +1,5 @@
-import {stripTime, today} from './date.js';
-import {lastItemOf} from './utils.js';
+import { stripTime, today } from "./date.js";
+import { lastItemOf } from "./utils.js";
 
 // pattern for format parts
 export const reFormatTokens = /dd?|DD?|mm?|MM?|yy?(?:yy)?/;
@@ -22,7 +22,7 @@ const parseFns = {
       }
 
       const monthName = month.toLowerCase();
-      const compareNames = name => name.toLowerCase().startsWith(monthName);
+      const compareNames = (name) => name.toLowerCase().startsWith(monthName);
       // compare with both short and full names because some locales have periods
       // in the short names (not equal to the first X letters of the full names)
       monthIndex = locale.monthsShort.findIndex(compareNames);
@@ -35,13 +35,11 @@ const parseFns = {
     }
 
     newDate.setMonth(monthIndex);
-    return newDate.getMonth() !== normalizeMonth(monthIndex)
-      ? newDate.setDate(0)
-      : newDate.getTime();
+    return newDate.getMonth() !== normalizeMonth(monthIndex) ? newDate.setDate(0) : newDate.getTime();
   },
   d(date, day) {
     return new Date(date).setDate(parseInt(day, 10));
-  },
+  }
 };
 // format functions for date parts
 const formatFns = {
@@ -77,7 +75,7 @@ const formatFns = {
   },
   yyyy(date) {
     return padZero(date.getFullYear(), 4);
-  },
+  }
 };
 
 // get month index in normal range (0 - 11) from any number
@@ -86,11 +84,11 @@ function normalizeMonth(monthIndex) {
 }
 
 function padZero(num, length) {
-  return num.toString().padStart(length, '0');
+  return num.toString().padStart(length, "0");
 }
 
 function parseFormatString(format) {
-  if (typeof format !== 'string') {
+  if (typeof format !== "string") {
     throw new Error("Invalid date format.");
   }
   if (format in knownFormats) {
@@ -99,32 +97,32 @@ function parseFormatString(format) {
 
   // sprit the format string into parts and seprators
   const separators = format.split(reFormatTokens);
-  const parts = format.match(new RegExp(reFormatTokens, 'g'));
+  const parts = format.match(new RegExp(reFormatTokens, "g"));
   if (separators.length === 0 || !parts) {
     throw new Error("Invalid date format.");
   }
 
   // collect format functions used in the format
-  const partFormatters = parts.map(token => formatFns[token]);
+  const partFormatters = parts.map((token) => formatFns[token]);
 
   // collect parse function keys used in the format
   // iterate over parseFns' keys in order to keep the order of the keys.
   const partParserKeys = Object.keys(parseFns).reduce((keys, key) => {
-    const token = parts.find(part => part[0] !== 'D' && part[0].toLowerCase() === key);
+    const token = parts.find((part) => part[0] !== "D" && part[0].toLowerCase() === key);
     if (token) {
       keys.push(key);
     }
     return keys;
   }, []);
 
-  return knownFormats[format] = {
+  return (knownFormats[format] = {
     parser(dateStr, locale) {
       const dateParts = dateStr.split(reNonDateParts).reduce((dtParts, part, index) => {
         if (part.length > 0 && parts[index]) {
           const token = parts[index][0];
-          if (token === 'M') {
+          if (token === "M") {
             dtParts.m = part;
-          } else if (token !== 'D') {
+          } else if (token !== "D") {
             dtParts[token] = part;
           }
         }
@@ -142,23 +140,23 @@ function parseFormatString(format) {
     },
     formatter(date, locale) {
       let dateStr = partFormatters.reduce((str, fn, index) => {
-        return str += `${separators[index]}${fn(date, locale)}`;
-      }, '');
+        return (str += `${separators[index]}${fn(date, locale)}`);
+      }, "");
       // separators' length is always parts' length + 1,
-      return dateStr += lastItemOf(separators);
-    },
-  };
+      return (dateStr += lastItemOf(separators));
+    }
+  });
 }
 
 export function parseDate(dateStr, format, locale) {
-  if (dateStr instanceof Date || typeof dateStr === 'number') {
+  if (dateStr instanceof Date || typeof dateStr === "number") {
     const date = stripTime(dateStr);
     return isNaN(date) ? undefined : date;
   }
   if (!dateStr) {
     return undefined;
   }
-  if (dateStr === 'today') {
+  if (dateStr === "today") {
     return today();
   }
 
@@ -172,10 +170,10 @@ export function parseDate(dateStr, format, locale) {
 
 export function formatDate(date, format, locale) {
   if (isNaN(date) || (!date && date !== 0)) {
-    return '';
+    return "";
   }
 
-  const dateObj = typeof date === 'number' ? new Date(date) : date;
+  const dateObj = typeof date === "number" ? new Date(date) : date;
 
   if (format.toDisplay) {
     return format.toDisplay(dateObj, format, locale);
