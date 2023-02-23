@@ -629,10 +629,10 @@ var pickerTemplate_default = pickerTemplate;
 // src/picker/templates/daysTemplate.ts
 var daysTemplate = optimizeTemplateHTML(`<div class="days">
   <div class="days-of-week grid grid-cols-7 mb-1">${createTagRepeat("span", 7, {
-  class: "dow block flex-1 leading-9 border-0 rounded-lg cursor-default text-center text-gray-900 font-semibold text-sm"
+  class: "dow flex items-center justify-center flex-1 leading-9 border-0 rounded-lg cursor-default text-gray-900 font-semibold text-sm"
 })}</div>
   <div class="datepicker-grid w-64 grid grid-cols-7">${createTagRepeat("span", 42, {
-  class: "block flex-1 leading-9 border-0 rounded-lg cursor-default text-center text-gray-900 font-semibold text-sm h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400"
+  class: "flex items-center justify-center flex-1 leading-9 border-0 rounded-lg cursor-default text-center text-gray-900 font-semibold text-sm h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400"
 })}</div>
 </div>`);
 var daysTemplate_default = daysTemplate;
@@ -641,7 +641,7 @@ var daysTemplate_default = daysTemplate;
 var calendarWeeksTemplate = optimizeTemplateHTML(`<div class="calendar-weeks">
   <div class="days-of-week flex"><span class="dow h-6 leading-6 text-sm font-medium text-gray-500 dark:text-gray-400"></span></div>
   <div class="weeks">${createTagRepeat("span", 6, {
-  class: "week block flex-1 leading-9 border-0 rounded-lg cursor-default text-center text-gray-900 font-semibold text-sm"
+  class: "week flex items-center justify-center flex-1 leading-9 border-0 rounded-lg cursor-default text-gray-900 font-semibold text-sm"
 })}</div>
 </div>`);
 var calendarWeeksTemplate_default = calendarWeeksTemplate;
@@ -804,8 +804,8 @@ var DaysView = class extends View {
     this.disabled = [...this.datesDisabled];
     const switchLabel = formatDate(this.focused, this.switchLabelFormat, this.locale);
     this.picker.setViewSwitchLabel(switchLabel);
-    this.picker.setPrevBtnDisabled(this.first <= this.minDate);
-    this.picker.setNextBtnDisabled(this.last >= this.maxDate);
+    this.picker.setPrevBtnDisabled(this.first <= Number(this.minDate));
+    this.picker.setNextBtnDisabled(this.last >= Number(this.maxDate));
     if (this.calendarWeeks) {
       const startOfWeek = dayOfTheWeekOf(this.first, 1, 1);
       Array.from(this.calendarWeeks.weeks.children).forEach((el, index) => {
@@ -828,7 +828,7 @@ var DaysView = class extends View {
       if (this.today === current) {
         classList.add("today", "bg-gray-100", "dark:bg-gray-600");
       }
-      if (current < this.minDate || current > this.maxDate || this.disabled.includes(current)) {
+      if (current < Number(this.minDate) || current > Number(this.maxDate) || this.disabled.includes(current)) {
         classList.add("disabled", "cursor-not-allowed");
       }
       if (this.daysOfWeekDisabled.includes(day)) {
