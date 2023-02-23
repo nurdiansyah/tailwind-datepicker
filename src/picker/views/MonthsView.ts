@@ -117,7 +117,7 @@ export default class MonthsView extends View {
       const classList = el.classList;
       const date = dateValue(this.year, index, 1);
 
-      el.className = `datepicker-cell hover:bg-gray-100 dark:hover:bg-gray-600 block flex-1 leading-9 border-0 rounded-lg cursor-pointer text-center text-gray-900 dark:text-white font-semibold text-sm ${this.cellClass}`;
+      el.className = `datepicker-cell hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center flex-1 leading-9 border-0 rounded-lg cursor-pointer text-gray-900 dark:text-white font-semibold text-sm ${this.cellClass}`;
       if (this.isMinView) {
         el.dataset.date = date.toString();
       }
