@@ -1,6 +1,6 @@
 {
   "name": "@deboxsoft/datepicker",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "svelte datepicker built with vanilla JavaScript",
   "repository": {
     "type": "git",
