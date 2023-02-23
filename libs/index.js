@@ -817,7 +817,7 @@ var DaysView = class extends View {
       const current = addDays(this.start, index);
       const date = new Date(current);
       const day = date.getDay();
-      el.className = `datepicker-cell hover:bg-gray-100 dark:hover:bg-gray-600 block flex-1 leading-9 border-0 rounded-lg cursor-pointer text-center text-gray-900 dark:text-white font-semibold text-sm ${this.cellClass}`;
+      el.className = `datepicker-cell hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center flex-1 leading-9 border-0 rounded-lg cursor-pointer text-gray-900 dark:text-white font-semibold text-sm ${this.cellClass}`;
       el.dataset.date = current;
       el.textContent = date.getDate();
       if (current < this.first) {
@@ -1025,7 +1025,7 @@ var MonthsView = class extends View {
     Array.from(this.grid.children).forEach((el, index) => {
       const classList = el.classList;
       const date = dateValue(this.year, index, 1);
-      el.className = `datepicker-cell hover:bg-gray-100 dark:hover:bg-gray-600 block flex-1 leading-9 border-0 rounded-lg cursor-pointer text-center text-gray-900 dark:text-white font-semibold text-sm ${this.cellClass}`;
+      el.className = `datepicker-cell hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center flex-1 leading-9 border-0 rounded-lg cursor-pointer text-gray-900 dark:text-white font-semibold text-sm ${this.cellClass}`;
       if (this.isMinView) {
         el.dataset.date = date.toString();
       }
@@ -1167,13 +1167,13 @@ var YearsView = class extends View {
   render() {
     this.disabled = [];
     this.picker.setViewSwitchLabel(`${this.first}-${this.last}`);
-    this.picker.setPrevBtnDisabled(this.first <= this.minYear);
-    this.picker.setNextBtnDisabled(this.last >= this.maxYear);
+    this.picker.setPrevBtnDisabled(this.first <= Number(this.minYear));
+    this.picker.setNextBtnDisabled(this.last >= Number(this.maxYear));
     Array.from(this.grid.children).forEach((el, index) => {
       const classList = el.classList;
       const current = this.start + index * this.step;
       const date = dateValue(current, 0, 1);
-      el.className = `datepicker-cell hover:bg-gray-100 dark:hover:bg-gray-600 block flex-1 leading-9 border-0 rounded-lg cursor-pointer text-center text-gray-900 dark:text-white font-semibold text-sm ${this.cellClass}`;
+      el.className = `datepicker-cell hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center flex-1 leading-9 border-0 rounded-lg cursor-pointer text-gray-900 dark:text-white font-semibold text-sm ${this.cellClass}`;
       if (this.isMinView) {
         el.dataset.date = date.toString();
       }
@@ -1183,7 +1183,7 @@ var YearsView = class extends View {
       } else if (index === 11) {
         classList.add("next");
       }
-      if (current < this.minYear || current > this.maxYear) {
+      if (current < Number(this.minYear) || current > this.maxYear) {
         classList.add("disabled");
       }
       if (this.range) {
